@@ -29,6 +29,11 @@ export const Modal: React.FC<TafsirModalProps> = ({
   }, [isOpen]);
   
   if (!isOpen || !tafsirData) return null;
+  
+  const currentTafsir = Array.isArray(tafsirData.tafsir)
+  ? tafsirData.tafsir[ayat.nomorAyat - 1]
+  : tafsirData.tafsir;
+
 
   return (
     <>
@@ -54,21 +59,11 @@ export const Modal: React.FC<TafsirModalProps> = ({
                 <div aria-hidden="true" className="w-full h-px bg-gray-200 mt-2 mb-8" />
 
                 <div className="w-full space-y-4">
-                  {Array.isArray(tafsirData.tafsir) ? (
-                    tafsirData.tafsir.map((item, index) => (
-                      <div key={index} className="prose prose-sm max-w-none">
-                        <p className="text-gray-700 whitespace-pre-line">
-                          {typeof item === 'string' ? item : item.teks}
-                        </p>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="prose prose-sm max-w-none">
-                      <p className="text-gray-700 whitespace-pre-line">
-                        {tafsirData.tafsir}
-                      </p>
-                    </div>
-                  )}
+                  <div className="prose prose-sm max-w-none">
+                    <p className="text-gray-700 whitespace-pre-line">
+                      {typeof currentTafsir === 'string' ? currentTafsir : currentTafsir?.teks}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

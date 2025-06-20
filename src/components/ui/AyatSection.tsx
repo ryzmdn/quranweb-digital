@@ -33,8 +33,8 @@ export const AyahCard: React.FC<AyahCardProps> = ({
     setError(null);
     try {
       const response = await axios.get(`https://equran.id/api/v2/tafsir/${ayahNumber}`);
-      const data = response.data;
-      setTafsirData(data.data);
+      const data = response.data.data;
+      setTafsirData(data);
       setIsTafsirOpen(true);
     } catch (err) {
       setError('Gagal memuat tafsir. Silakan coba lagi.');
