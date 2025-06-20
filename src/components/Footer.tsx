@@ -1,0 +1,30 @@
+import { useLocation } from "react-router";
+import { Logo } from "./Logo";
+
+export function Footer() {
+  const location = useLocation();
+  const year = new Date().getFullYear();
+
+  const shouldHideComponent = location.pathname.includes("surat");
+
+  return !shouldHideComponent && (
+    <footer className="bg-gray-900 dark:bg-gray-950 border-t border-gray-100 dark:border-gray-900">
+        <div className="container mx-auto px-4 py-12">
+            <div className="flex items-center justify-center gap-3 mb-4 text-center">
+              <div className="flex justify-center items-center p-1 bg-gradient-to-br from-emerald-600 to-emerald-500 size-10 rounded-full shadow-sm">
+                <Logo />
+              </div>
+              <h3 className="text-xl text-gray-200 font-semibold">Al-Quran Digital</h3>
+            </div>
+            <p className="text-gray-400 my-6 max-w-md mx-auto">
+              Platform digital terpercaya untuk membaca, mendengarkan, dan mempelajari Al-Quran
+            </p>
+            <div className="flex items-center justify-center gap-6 text-sm text-gray-400">
+              <span>© {year} Al-Quran Digital</span>
+              <span>•</span>
+              <span>Dibuat dengan ❤️</span>
+            </div>
+        </div>
+      </footer>
+  )
+}
