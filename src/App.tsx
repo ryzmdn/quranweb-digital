@@ -6,7 +6,7 @@ export default function App() {
   return (
     <>
       <Header />
-      <div className="w-full max-w-6xl mx-auto py-8">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:p-6">
         <Outlet />
       </div>
       <Footer />
