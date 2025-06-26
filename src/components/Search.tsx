@@ -449,7 +449,7 @@ function SearchDialog({
         aria-label="Close search dialog"
       />
 
-      <div className="fixed inset-y-0 inset-x-1/2 -translate-x-1/2 z-50 w-[calc(100%-50%)] h-max overflow-y-auto px-4 py-4 sm:px-6 sm:py-20 md:py-32 lg:px-8 lg:py-[15vh]">
+      <div className="fixed inset-y-0 inset-x-1/2 -translate-x-1/2 z-50 w-[calc(100%-5%)] h-max overflow-y-auto px-4 py-4 sm:px-6 sm:py-20 md:py-32 md:w-[calc(100%-45%)] lg:px-8 lg:py-[15vh]">
         <div className="mx-auto w-full transform-gpu overflow-hidden rounded-lg bg-gray-50 shadow-xl ring-1 ring-gray-900/7.5 dark:bg-gray-900 dark:ring-gray-800">
           <form 
             ref={formRef} 
