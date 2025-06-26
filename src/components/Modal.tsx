@@ -37,30 +37,34 @@ export const Modal: React.FC<TafsirModalProps> = ({
 
   return (
     <>
-      <div className="fixed size-full inset-0 bg-gray-900/75 z-40" />
+      <button
+        className="fixed inset-0 z-40 size-full backdrop-blur-sm bg-gray-950/25 dark:bg-gray-50/25"
+        onClick={onClose}
+        aria-label="Close search dialog"
+      />
 
       <div className="relative size-full">
-        <div className="fixed top-1/2 left-1/2 -translate-1/2 z-50 overflow-y-auto size-full max-w-2xl sm:h-[600px] rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl sm:p-6">
+        <div className="fixed top-1/2 left-1/2 -translate-1/2 z-50 overflow-y-auto size-full max-w-2xl sm:max-h-[600px] rounded-lg bg-gray-100 dark:bg-gray-900 px-4 pt-5 pb-4 text-left shadow-xl sm:p-6">
           <div className="text-start sm:flex sm:items-start">
             <div className="mt-3 sm:mt-0 sm:ml-4 sm:text-left">
-              <h3 className="text-base font-semibold text-gray-800">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
                 Tafsir Surat {surah.namaLatin} Ayat {ayat.nomorAyat}
               </h3>
 
               <div className="mt-2">
                 <div className="text-right py-8">
-                  <p className="text-4xl font-serif font-medium" dir="rtl" lang="ar">
+                  <p className="text-4xl text-gray-900 dark:text-gray-100 font-serif font-medium" dir="rtl" lang="ar">
                     {ayat.teksArab}
                   </p>
-                  <p className="text-gray-600 italic mt-2">{ayat.teksLatin}</p>
-                  <p className="text-gray-700 mt-2">{ayat.teksIndonesia}</p>
+                  <p className="text-gray-600 dark:text-gray-400 italic mt-2">{ayat.teksLatin}</p>
+                  <p className="text-gray-700 dark:text-gray-300 mt-2">{ayat.teksIndonesia}</p>
                 </div>
 
                 <div aria-hidden="true" className="w-full h-px bg-gray-200 mt-2 mb-8" />
 
                 <div className="w-full space-y-4">
                   <div className="prose prose-sm max-w-none">
-                    <p className="text-gray-700 whitespace-pre-line">
+                    <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
                       {typeof currentTafsir === 'string' ? currentTafsir : currentTafsir?.teks}
                     </p>
                   </div>
