@@ -1,5 +1,5 @@
 import { useLocation } from "react-router";
-import { Logo } from "./Logo";
+import { Logo } from "@/components/Logo";
 
 export function Footer() {
   const location = useLocation();

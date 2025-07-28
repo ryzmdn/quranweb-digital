@@ -1,4 +1,4 @@
-import type { Surah } from "../assets/types/surah";
+import type { Surah } from "@/assets/types/surah";
 
 export const SurahList: React.FC<{
   surahs: Surah[];

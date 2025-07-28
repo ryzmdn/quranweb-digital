@@ -1,7 +1,7 @@
-import type { Surah } from "../../assets/types/surah";
-import { arabicNumber } from "../../utils/arabicNumber";
-import { Button } from "../optimizing/Button";
-import { Svg } from "../optimizing/Svg";
+import type { Surah } from "@/assets/types/surah";
+import { arabicNumber } from "@/utils/arabicNumber";
+import { Button } from "@/components/optimizing/Button";
+import { Svg } from "@/components/optimizing/Svg";
 
 export function Card({ surah }: Readonly<{ surah: Surah }>) {
   const { nomor, tempatTurun, nama, namaLatin, arti, jumlahAyat } = surah;

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
-import { Button } from '../optimizing/Button';
-import { Svg } from '../optimizing/Svg';
+import { Button } from '@/components/optimizing/Button';
+import { Svg } from '@/components/optimizing/Svg';
 
 interface SurahHeaderProps {
   title?: string;

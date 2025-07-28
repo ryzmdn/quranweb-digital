@@ -1,6 +1,6 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { Link } from "react-router";
-import { clss } from "../../utils/clss";
+import { clss } from "@/utils/clss";
 
 const variantStyles = {
   primary:

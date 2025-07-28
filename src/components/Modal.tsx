@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
-import type { Ayat, Surah, Tafsir } from '../assets/types/surah';
-import { Button } from './optimizing/Button';
-import { Svg } from './optimizing/Svg';
+import { useEffect } from "react";
+import type { Ayat, Surah, Tafsir } from "@/assets/types/surah";
+import { Button } from "@/components/optimizing/Button";
+import { Svg } from "@/components/optimizing/Svg";
 
 interface TafsirModalProps {
   isOpen: boolean;
@@ -16,7 +16,7 @@ export const Modal: React.FC<TafsirModalProps> = ({
   onClose,
   surah,
   ayat,
-  tafsirData
+  tafsirData,
 }) => {
   useEffect(() => {
     if (isOpen) {
@@ -25,15 +25,14 @@ export const Modal: React.FC<TafsirModalProps> = ({
 
     return () => {
       document.documentElement.classList.remove("overflow-hidden");
-    }
+    };
   }, [isOpen]);
-  
-  if (!isOpen || !tafsirData) return null;
-  
-  const currentTafsir = Array.isArray(tafsirData.tafsir)
-  ? tafsirData.tafsir[ayat.nomorAyat - 1]
-  : tafsirData.tafsir;
 
+  if (!isOpen || !tafsirData) return null;
+
+  const currentTafsir = Array.isArray(tafsirData.tafsir)
+    ? tafsirData.tafsir[ayat.nomorAyat - 1]
+    : tafsirData.tafsir;
 
   return (
     <>
@@ -53,19 +52,32 @@ export const Modal: React.FC<TafsirModalProps> = ({
 
               <div className="mt-2">
                 <div className="text-right py-8">
-                  <p className="text-4xl text-gray-900 dark:text-gray-100 font-serif font-medium" dir="rtl" lang="ar">
+                  <p
+                    className="text-4xl text-gray-900 dark:text-gray-100 font-serif font-medium"
+                    dir="rtl"
+                    lang="ar"
+                  >
                     {ayat.teksArab}
                   </p>
-                  <p className="text-gray-600 dark:text-gray-400 italic mt-2">{ayat.teksLatin}</p>
-                  <p className="text-gray-700 dark:text-gray-300 mt-2">{ayat.teksIndonesia}</p>
+                  <p className="text-gray-600 dark:text-gray-400 italic mt-2">
+                    {ayat.teksLatin}
+                  </p>
+                  <p className="text-gray-700 dark:text-gray-300 mt-2">
+                    {ayat.teksIndonesia}
+                  </p>
                 </div>
 
-                <div aria-hidden="true" className="w-full h-px bg-gray-200 mt-2 mb-8" />
+                <div
+                  aria-hidden="true"
+                  className="w-full h-px bg-gray-200 mt-2 mb-8"
+                />
 
                 <div className="w-full space-y-4">
                   <div className="prose prose-sm max-w-none">
                     <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
-                      {typeof currentTafsir === 'string' ? currentTafsir : currentTafsir?.teks}
+                      {typeof currentTafsir === "string"
+                        ? currentTafsir
+                        : currentTafsir?.teks}
                     </p>
                   </div>
                 </div>
@@ -78,7 +90,12 @@ export const Modal: React.FC<TafsirModalProps> = ({
               className="absolute top-5 right-5 text-gray-500 hover:text-gray-700"
               aria-label="Tutup modal"
             >
-              <Svg variant="outline" width={24} height={24} draw={["M6 18L18 6M6 6l12 12"]} />
+              <Svg
+                variant="outline"
+                width={24}
+                height={24}
+                draw={["M6 18L18 6M6 6l12 12"]}
+              />
             </Button>
           </div>
         </div>

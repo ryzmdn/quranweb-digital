@@ -1,8 +1,8 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
-import type { Surah } from "../assets/types/surah";
-import { Search } from "../components/Search";
-import { Card } from "../components/ui/Card";
+import axios from "axios";
+import type { Surah } from "@/assets/types/surah";
+import { Search } from "@/components/Search";
+import { Card } from "@/components/ui/Card";
 
 export default function Home() {
   const [surahs, setSurahs] = useState<Surah[]>([]);
@@ -28,7 +28,7 @@ export default function Home() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Memuat data Al-Quran...</p>
+          <p className="text-gray-600">Memuat data Al-Quran@.</p>
         </div>
       </div>
     );

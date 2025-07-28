@@ -1,11 +1,11 @@
-import { Svg } from '../optimizing/Svg';
+import { Svg } from "@/components/optimizing/Svg";
 
 const RECITERS = {
   "01": "Abdullah Al-Juhany",
   "02": "Abdul Muhsin-Al-Qasim",
   "03": "Abdurrahman as-Sudais",
   "04": "Ibrahim Al-Dossari",
-  "05": "Misyari Rasyid Al-Afasi"
+  "05": "Misyari Rasyid Al-Afasi",
 } as const;
 
 interface ReciterSelectorProps {
@@ -17,11 +17,11 @@ interface ReciterSelectorProps {
 export const ReciterSelector: React.FC<ReciterSelectorProps> = ({
   selectedReciter,
   availableReciters,
-  onReciterChange
+  onReciterChange,
 }) => {
-  const reciterOptions = availableReciters.map(reciter => ({
+  const reciterOptions = availableReciters.map((reciter) => ({
     value: reciter,
-    label: RECITERS[reciter as keyof typeof RECITERS] || reciter
+    label: RECITERS[reciter as keyof typeof RECITERS] || reciter,
   }));
 
   return (
@@ -40,12 +40,12 @@ export const ReciterSelector: React.FC<ReciterSelectorProps> = ({
           </option>
         ))}
       </select>
-      <Svg 
-        variant="outline" 
-        width={16} 
-        height={16} 
-        draw={["m19.5 8.25-7.5 7.5-7.5-7.5"]} 
-        className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-500" 
+      <Svg
+        variant="outline"
+        width={16}
+        height={16}
+        draw={["m19.5 8.25-7.5 7.5-7.5-7.5"]}
+        className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
       />
     </div>
   );

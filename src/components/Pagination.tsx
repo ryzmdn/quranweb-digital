@@ -1,14 +1,20 @@
-import { Button } from '../components/optimizing/Button';
-import type { SurahDetail } from '../assets/types/surah';
+import { Button } from "@/components/optimizing/Button";
+import type { SurahDetail } from "@/assets/types/surah";
 
 interface SurahNavigationProps {
   content: SurahDetail;
   currentId: string | undefined;
 }
 
-export const Pagination: React.FC<SurahNavigationProps> = ({ content, currentId }) => {
+export const Pagination: React.FC<SurahNavigationProps> = ({
+  content,
+  currentId,
+}) => {
   return (
-    <footer aria-label="Pagination" className="p-5 bg-white border border-gray-200 rounded-2xl shadow-sm">
+    <footer
+      aria-label="Pagination"
+      className="p-5 bg-white border border-gray-200 rounded-2xl shadow-sm"
+    >
       <div className="flex justify-between items-center">
         {content.suratSebelumnya && (
           <Button

@@ -1,8 +1,8 @@
 import { useLocation } from "react-router";
-import { useTheme } from "../context/ThemeProvider";
-import { Button } from "./optimizing/Button";
-import { Svg } from "./optimizing/Svg";
-import { Logo } from "./Logo";
+import { Button } from "@/components/optimizing/Button";
+import { Svg } from "@/components/optimizing/Svg";
+import { Logo } from "@/components/Logo";
+import { useTheme } from "@/context/ThemeProvider";
 
 export function Header() {
   const location = useLocation();

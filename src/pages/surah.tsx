@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useParams } from "react-router";
 import axios from "axios";
-import type { Ayat, SurahDetail } from "../assets/types/surah";
-import { useAudio } from "../context/AudioProvider";
-import { Pagination } from "../components/Pagination";
-import { AyahCard } from "../components/ui/AyatSection";
-import { SurahHeader } from "../components/ui/SurahHeader";
-import { SurahInfo } from "../components/ui/SurahDetail";
-import { LoadingState } from "../components/animation/Loading";
-import { ErrorState } from "../components/animation/Error";
+import { Pagination } from "@/components/Pagination";
+import { AyahCard } from "@/components/ui/AyatSection";
+import { SurahHeader } from "@/components/ui/SurahHeader";
+import { SurahInfo } from "@/components/ui/SurahDetail";
+import { LoadingState } from "@/components/animation/Loading";
+import { ErrorState } from "@/components/animation/Error";
+import type { Ayat, SurahDetail } from "@/assets/types/surah";
+import { useAudio } from "@/context/AudioProvider";
 
 export default function Surah() {
   const { id } = useParams<{ id: string }>();

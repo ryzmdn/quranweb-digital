@@ -20,8 +20,10 @@ type AudioContextType = {
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
 
-export const AudioProvider = ({ children }: { children: ReactNode }) => {
-  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+export function AudioProvider({ children }: Readonly<{ children: ReactNode }>) {
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(
+    null
+  );
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTrack, setCurrentTrack] = useState<string>("");
   const audioEndedCallbackRef = useRef<(() => void) | null>(null);
@@ -83,19 +85,33 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
   }, [currentAudio]);
 
   const value = useMemo(
-    () => ({ playAudio, stopAudio, isPlaying, currentTrack, registerAudioEndedCallback, unregisterAudioEndedCallback }),
-    [currentTrack, isPlaying, playAudio, stopAudio, registerAudioEndedCallback, unregisterAudioEndedCallback]
+    () => ({
+      playAudio,
+      stopAudio,
+      isPlaying,
+      currentTrack,
+      registerAudioEndedCallback,
+      unregisterAudioEndedCallback,
+    }),
+    [
+      currentTrack,
+      isPlaying,
+      playAudio,
+      stopAudio,
+      registerAudioEndedCallback,
+      unregisterAudioEndedCallback,
+    ]
   );
-  
+
   return (
     <AudioContext.Provider value={value}>{children}</AudioContext.Provider>
   );
-};
+}
 
-export const useAudio = () => {
+export function useAudio() {
   const context = useContext(AudioContext);
   if (!context) {
     throw new Error("useAudio must be used within an AudioProvider");
   }
   return context;
-};
+}

@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { clss } from "../../utils/clss";
+import { clss } from "@/utils/clss";
 
 export interface SvgProps {
   variant?: "outline" | "solid" | "custom";

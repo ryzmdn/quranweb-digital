@@ -8,10 +8,10 @@ import {
 } from "react";
 import { useLocation, useNavigate } from "react-router";
 import axios from "axios";
-import { Button } from "../components/optimizing/Button";
-import { Svg } from "../components/optimizing/Svg";
-import { clss } from "../utils/clss";
-import type { Surah } from "../assets/types/surah";
+import { Button } from "@/components/optimizing/Button";
+import { Svg } from "@/components/optimizing/Svg";
+import type { Surah } from "@/assets/types/surah";
+import { clss } from "@/utils/clss";
 
 const SearchStatus = {
   Idle: "idle",
