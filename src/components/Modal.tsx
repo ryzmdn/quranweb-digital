@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import type { Ayat, Surah, Tafsir } from "@/assets/types/surah";
 import { Button } from "@/components/optimizing/Button";
 import { Svg } from "@/components/optimizing/Svg";
@@ -9,97 +9,186 @@ interface TafsirModalProps {
   surah: Surah;
   ayat: Ayat;
   tafsirData: Tafsir | null;
+  className?: string;
 }
 
-export const Modal: React.FC<TafsirModalProps> = ({
+function useDisableScroll(active: boolean) {
+  useEffect(() => {
+    if (!active) return;
+    const root = document.documentElement;
+    const prev = root.style.overflow;
+    root.style.overflow = "hidden";
+    return () => {
+      root.style.overflow = prev || "";
+    };
+  }, [active]);
+}
+
+function useFocusTrap(
+  active: boolean,
+  containerRef: React.RefObject<HTMLElement | null>
+) {
+  useEffect(() => {
+    if (!active) return;
+    const el = containerRef.current;
+    if (!el) return;
+
+    const focusable = el.querySelectorAll(
+      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    ) as NodeListOf<HTMLElement>;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      if (!first || !last) return;
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    (first ?? el).focus();
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [active, containerRef]);
+}
+
+export function Modal({
   isOpen,
   onClose,
   surah,
   ayat,
   tafsirData,
-}) => {
-  useEffect(() => {
-    if (isOpen) {
-      document.documentElement.classList.add("overflow-hidden");
-    }
+  className,
+}: Readonly<TafsirModalProps>) {
+  useDisableScroll(isOpen);
 
-    return () => {
-      document.documentElement.classList.remove("overflow-hidden");
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  useFocusTrap(isOpen, containerRef);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
     };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isOpen, onClose]);
+
+  const handleBackdropClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.target === e.currentTarget) onClose();
+    },
+    [onClose]
+  );
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    if (isOpen) setMounted(true);
+    else {
+      const t = setTimeout(() => setMounted(false), 200);
+      return () => clearTimeout(t);
+    }
   }, [isOpen]);
 
-  if (!isOpen || !tafsirData) return null;
+  const currentTafsir = useMemo(() => {
+    if (!tafsirData) return null;
+    return Array.isArray(tafsirData.tafsir)
+      ? tafsirData.tafsir[ayat.nomorAyat - 1]
+      : tafsirData.tafsir;
+  }, [tafsirData, ayat.nomorAyat]);
 
-  const currentTafsir = Array.isArray(tafsirData.tafsir)
-    ? tafsirData.tafsir[ayat.nomorAyat - 1]
-    : tafsirData.tafsir;
+  if (!mounted || !isOpen || !tafsirData) return null;
 
   return (
-    <>
-      <button
-        className="fixed inset-0 z-40 size-full backdrop-blur-sm bg-gray-950/25 dark:bg-gray-50/25"
-        onClick={onClose}
-        aria-label="Close search dialog"
-      />
+    <div className={className}>
+      <div
+        onClick={handleBackdropClick}
+        className="fixed inset-0 z-40 backdrop-blur-sm bg-gray-950/20 dark:bg-gray-950/55"
+        aria-hidden={!isOpen}
+      >
+        <div className="relative size-full">
+          <div
+            ref={containerRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="tafsir-title"
+            tabIndex={-1}
+            className="fixed top-1/2 left-1/2 -translate-1/2 z-50 overflow-y-auto size-full max-w-2xl rounded-lg bg-gray-50 dark:bg-gray-950 px-4 pt-5 pb-4 text-start shadow-xl sm:flex sm:items-start sm:p-6 sm:max-h-[600px]"
+          >
+            <div className="mt-3 sm:mt-0 sm:ml-4 sm:text-left w-full">
+              <header className="flex justify-between items-center pb-3.5 border-b border-gray-200 dark:border-gray-800">
+                <h3
+                  id="tafsir-title"
+                  className="text-base font-semibold text-gray-900 dark:text-gray-100"
+                >
+                  Tafsir Surat {surah.namaLatin} Ayat {ayat.nomorAyat}
+                </h3>
 
-      <div className="relative size-full">
-        <div className="fixed top-1/2 left-1/2 -translate-1/2 z-50 overflow-y-auto size-full max-w-2xl sm:max-h-[600px] rounded-lg bg-gray-100 dark:bg-gray-900 px-4 pt-5 pb-4 text-left shadow-xl sm:p-6">
-          <div className="text-start sm:flex sm:items-start">
-            <div className="mt-3 sm:mt-0 sm:ml-4 sm:text-left">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-                Tafsir Surat {surah.namaLatin} Ayat {ayat.nomorAyat}
-              </h3>
+                <Button
+                  variant="ghost"
+                  onClick={onClose}
+                  className="text-gray-500 hover:text-gray-700"
+                  aria-label="Close modal"
+                >
+                  <Svg
+                    variant="outline"
+                    width={24}
+                    height={24}
+                    draw={["M6 18L18 6M6 6l12 12"]}
+                  />
+                </Button>
+              </header>
 
-              <div className="mt-2">
+              <div className="w-full my-5">
                 <div className="text-right py-8">
                   <p
-                    className="text-4xl text-gray-900 dark:text-gray-100 font-serif font-medium"
+                    className="text-4xl/relaxed text-gray-900 dark:text-gray-100 font-serif font-medium"
                     dir="rtl"
                     lang="ar"
                   >
                     {ayat.teksArab}
                   </p>
-                  <p className="text-gray-600 dark:text-gray-400 italic mt-2">
+                  <p className="text-base/7 text-gray-600 dark:text-gray-400 italic mt-2">
                     {ayat.teksLatin}
                   </p>
-                  <p className="text-gray-700 dark:text-gray-300 mt-2">
+                  <p className="font-serif text-base/7 text-gray-700 dark:text-gray-300 mt-3.5">
                     {ayat.teksIndonesia}
                   </p>
                 </div>
 
                 <div
-                  aria-hidden="true"
+                  aria-hidden
                   className="w-full h-px bg-gray-200 mt-2 mb-8"
                 />
 
                 <div className="w-full space-y-4">
-                  <div className="prose prose-sm max-w-none">
-                    <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
-                      {typeof currentTafsir === "string"
-                        ? currentTafsir
-                        : currentTafsir?.teks}
-                    </p>
-                  </div>
+                  <p className="font-serif text-base/7 text-gray-700 dark:text-gray-300 whitespace-pre-line">
+                    {typeof currentTafsir === "string"
+                      ? currentTafsir
+                      : currentTafsir?.teks}
+                  </p>
                 </div>
               </div>
-            </div>
 
-            <Button
-              variant="ghost"
-              onClick={onClose}
-              className="absolute top-5 right-5 text-gray-500 hover:text-gray-700"
-              aria-label="Tutup modal"
-            >
-              <Svg
-                variant="outline"
-                width={24}
-                height={24}
-                draw={["M6 18L18 6M6 6l12 12"]}
-              />
-            </Button>
+              <footer className="w-full pt-5 border-t border-gray-200 dark:border-gray-800">
+                <Button
+                  variant="ghost"
+                  onClick={onClose}
+                  className="text-green-500 hover:text-green-400"
+                  aria-label="Close modal"
+                >
+                  &larr; Kembali
+                </Button>
+              </footer>
+            </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
-};
+}

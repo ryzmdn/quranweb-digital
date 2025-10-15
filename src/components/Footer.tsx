@@ -10,7 +10,7 @@ export function Footer() {
   return (
     !shouldHideComponent && (
       <footer className="bg-gray-50 dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800">
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto pt-10 px-4 pb-6">
           <div className="flex items-center justify-center gap-3 mb-4 text-center">
             <div className="flex justify-center items-center p-1 bg-gradient-to-br from-emerald-600 to-emerald-500 size-10 rounded-full shadow-sm">
               <Logo />
@@ -23,7 +23,7 @@ export function Footer() {
             Platform digital terpercaya untuk membaca, mendengarkan, dan
             mempelajari Al-Quran
           </p>
-          <div className="flex items-center justify-center gap-6 text-sm text-gray-600 dark:text-gray-400">
+          <div className="flex items-center justify-center gap-6 text-xs text-gray-600 dark:text-gray-400">
             <span>© {year} Al-Quran Digital</span>
             <span>•</span>
             <span>Dibuat dengan ❤️</span>

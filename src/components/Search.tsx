@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  memo,
   Suspense,
   useCallback,
   useEffect,
@@ -15,16 +16,16 @@ import { clss } from "@/utils/clss";
 
 const SearchStatus = {
   Idle: "idle",
-  Loading: "loading", 
+  Loading: "loading",
   Success: "success",
-  Error: "error"
-}
+  Error: "error",
+} as const;
 
 interface SurahSearchState {
   query: string;
   results: Surah[];
   isOpen: boolean;
-  status: typeof SearchStatus[keyof typeof SearchStatus];
+  status: (typeof SearchStatus)[keyof typeof SearchStatus];
 }
 
 function useWordPressSearch({ close }: { close: () => void }) {
@@ -35,71 +36,93 @@ function useWordPressSearch({ close }: { close: () => void }) {
     isOpen: false,
     status: SearchStatus.Idle,
   });
-  
-  const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fetchResults = useCallback(async (query: string) => {
-    if (!query || query.length < 2) {
-      setSearchState((prev) => ({ 
-        ...prev, 
-        results: [], 
-        status: SearchStatus.Idle 
-      }));
-      return;
-    }
+  const surahCache = useRef<Surah[] | null>(null);
+  const fetchAbort = useRef<AbortController | null>(null);
+  const debounceRef = useRef<number | null>(null);
 
-    setSearchState((prev) => ({ ...prev, status: SearchStatus.Loading }));
+  const fetchAllSurah = useCallback(async () => {
+    if (surahCache.current) return surahCache.current;
+    fetchAbort.current?.abort();
+    const controller = new AbortController();
+    fetchAbort.current = controller;
 
+    setSearchState((s) => ({ ...s, status: SearchStatus.Loading }));
     try {
-      const response = await axios.get("https://equran.id/api/v2/surat");
-
-      setSearchState((prev) => ({
-        ...prev,
-        results: response.data.data,
-        status: SearchStatus.Success,
-        isOpen: true,
-      }));
-    } catch (error) {
-      console.error("Search error:", error);
-    
-      let errorMessage = "An error occurred while searching";
-      if (axios.isAxiosError(error)) {
-        errorMessage += `: ${error.message}`;
-        if (error.response) {
-          console.error("Response data:", error.response.data);
-        }
+      const res = await axios.get("https://equran.id/api/v2/surat", {
+        signal: controller.signal as unknown as AbortSignal,
+      });
+      const data: Surah[] = res.data?.data ?? [];
+      surahCache.current = data;
+      return data;
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.name === "CanceledError") {
+        return [];
       }
-      
-      setSearchState((prev) => ({ 
-        ...prev, 
-        status: SearchStatus.Error, 
+      console.error("Failed to fetch surah list", err);
+      setSearchState((s) => ({
+        ...s,
+        status: SearchStatus.Error,
         results: [],
-        errorMessage
       }));
+      return [];
     }
   }, []);
 
-  const handleInputChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const query = event.target.value;
-      setSearchState((prev) => ({ ...prev, query }));
-      
-      if (debounceTimeout.current) {
-        clearTimeout(debounceTimeout.current);
+  const performSearch = useCallback(
+    async (query: string) => {
+      if (!query || query.trim().length < 2) {
+        setSearchState((s) => ({
+          ...s,
+          results: [],
+          status: SearchStatus.Idle,
+        }));
+        return;
       }
-      
-      debounceTimeout.current = setTimeout(() => {
-        fetchResults(query);
+
+      setSearchState((s) => ({ ...s, status: SearchStatus.Loading }));
+
+      const list = (await fetchAllSurah()) ?? [];
+
+      const lower = query.toLowerCase();
+      const filtered = list
+        .filter((s) => {
+          const t = (s.namaLatin ?? "").toString().toLowerCase();
+          const d = (s.deskripsi ?? "").toString().toLowerCase();
+          return t.includes(lower) || d.includes(lower);
+        })
+        .slice(0, 20);
+
+      setSearchState((s) => ({
+        ...s,
+        results: filtered,
+        status: SearchStatus.Success,
+        isOpen: true,
+      }));
+    },
+    [fetchAllSurah]
+  );
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const query = e.target.value;
+      setSearchState((s) => ({ ...s, query }));
+
+      if (debounceRef.current) {
+        window.clearTimeout(debounceRef.current);
+      }
+
+      debounceRef.current = window.setTimeout(() => {
+        performSearch(query);
       }, 300);
     },
-    [fetchResults]
+    [performSearch]
   );
 
   useEffect(() => {
     return () => {
-      if (debounceTimeout.current) {
-        clearTimeout(debounceTimeout.current);
-      }
+      if (debounceRef.current) window.clearTimeout(debounceRef.current);
+      fetchAbort.current?.abort();
     };
   }, []);
 
@@ -117,59 +140,57 @@ function useWordPressSearch({ close }: { close: () => void }) {
     handleInputChange,
     navigateToPost,
     setSearchState,
+    fetchAllSurah,
   };
 }
 
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, '');
+  return html.replace(/<[^>]*>/g, "");
 }
 
-function HighlightQuery({
-  text,
-  query,
-}: Readonly<{ text: string; query: string }>) {
+function HighlightQuery({ text, query }: { text: string; query: string }) {
   if (!query) return <>{text}</>;
 
-  const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const escapedQuery = query.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&");
   const parts = text.split(new RegExp(`(${escapedQuery})`, "gi"));
 
   return (
     <>
-      {parts.map(part =>
+      {parts.map((part, i) =>
         part.toLowerCase() === query.toLowerCase() ? (
-          <mark
-            key={`highlight-${part}`}
-            className="bg-transparent text-emerald-500 underline"
-          >
+          <mark key={i} className="bg-transparent text-emerald-500 underline">
             {part}
           </mark>
         ) : (
-          <span key={`text-${part}`}>{part}</span>
+          <span key={i}>{part}</span>
         )
       )}
     </>
   );
 }
 
-function SearchResult({
+const SearchResult = memo(function SearchResult({
   surah,
   resultIndex,
   query,
   onSelect,
-}: Readonly<{
+}: {
   surah: Surah;
   resultIndex: number;
   query: string;
   onSelect: (surah: Surah) => void;
-}>) {
-  const title = surah.namaLatin || 'Unknown';
-  const excerpt = surah.deskripsi || 'Unknown';
-  const excerptLength = (excerpt.length > 100 ? "..." : "");
-  const cleanTitle = typeof title === 'string' ? stripHtml(title) : '';
-  const cleanExcerpt = typeof excerpt === 'string' ? stripHtml(excerpt).substring(0, 100) + excerptLength : '';
+}) {
+  const title = surah.namaLatin ?? "Unknown";
+  const excerpt = surah.deskripsi ?? "";
+  const cleanTitle = stripHtml(String(title));
+  const cleanExcerpt =
+    stripHtml(String(excerpt)).slice(0, 100) +
+    (excerpt.length > 100 ? "..." : "");
 
   return (
     <li
+      role="option"
+      aria-selected={false}
       className={clss(
         "group block cursor-pointer px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-900/50",
         resultIndex > 0 ? "border-t border-gray-100 dark:border-gray-800" : ""
@@ -183,21 +204,23 @@ function SearchResult({
         <div className="text-sm font-medium text-gray-900 group-hover:text-emerald-500 dark:text-gray-100">
           <HighlightQuery text={cleanTitle} query={query} />
         </div>
-        <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-          <HighlightQuery text={cleanExcerpt} query={query} />
-        </div>
+        {cleanExcerpt && (
+          <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+            <HighlightQuery text={cleanExcerpt} query={query} />
+          </div>
+        )}
       </Button>
     </li>
   );
-}
+});
 
 function SearchResults({
   searchState,
   onSelect,
-}: Readonly<{
+}: {
   searchState: SurahSearchState;
-  onSelect: (surah: Surah) => void;
-}>) {
+  onSelect: (s: Surah) => void;
+}) {
   const { query, results, status } = searchState;
 
   if (status === SearchStatus.Loading) {
@@ -243,18 +266,17 @@ function SearchResults({
           Nothing found for{" "}
           <strong className="break-words font-semibold text-gray-800 dark:text-gray-200">
             &quot;{query}&quot;
-          </strong>. Please try again.
+          </strong>
+          . Please try again.
         </p>
       </div>
     );
   }
 
-  if (!Array.isArray(results)) {
-    return null;
-  }
+  if (!Array.isArray(results)) return null;
 
   return (
-    <ul className="w-full h-full max-h-100 overflow-y-auto">
+    <ul role="listbox" className="w-full h-full max-h-100 overflow-y-auto">
       {results.map((surah, index) => (
         <SearchResult
           key={surah.nomor}
@@ -287,7 +309,9 @@ const SearchInput = forwardRef<
         ]}
         className="absolute left-3 top-0 h-full text-gray-700 dark:text-gray-300 mr-1.5"
       />
-      <label htmlFor="search-blog" className="sr-only">Search blog</label>
+      <label htmlFor="search-blog" className="sr-only">
+        Search blog
+      </label>
       <input
         ref={inputRef}
         id="search-blog"
@@ -345,16 +369,12 @@ function SearchDialog({
   const formRef = useRef<HTMLFormElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { 
-    searchState, 
-    handleInputChange, 
-    navigateToPost, 
-    setSearchState 
-  } = useWordPressSearch({
-    close() {
-      setOpen(false);
-    },
-  });
+  const { searchState, handleInputChange, navigateToPost, setSearchState } =
+    useWordPressSearch({
+      close() {
+        setOpen(false);
+      },
+    });
   const pathname = useLocation();
 
   useEffect(() => {
@@ -381,19 +401,19 @@ function SearchDialog({
     if (open) {
       document.documentElement.classList.add("overflow-hidden");
     }
-    
+
     return () => {
       document.documentElement.classList.remove("overflow-hidden");
-    }
+    };
   }, [open]);
 
   const handleClose = () => {
     setOpen(false);
-    setSearchState((prev) => ({ 
-      ...prev, 
-      query: "", 
+    setSearchState((prev) => ({
+      ...prev,
+      query: "",
       results: [],
-      status: SearchStatus.Idle
+      status: SearchStatus.Idle,
     }));
   };
 
@@ -405,24 +425,26 @@ function SearchDialog({
 
   if (hasError) {
     return (
-      <div className={clss(
-        open ? "block" : "hidden", 
-        "fixed inset-0 z-50", 
-        className
-      )}>
+      <div
+        className={clss(
+          open ? "block" : "hidden",
+          "fixed inset-0 z-50",
+          className
+        )}
+      >
         <button
           className="fixed inset-0 z-40 size-full backdrop-blur-sm bg-gray-400/25 dark:bg-gray-950/40"
           onClick={handleClose}
           aria-label="Close search dialog"
         />
-        
+
         <div className="fixed inset-0 z-50 overflow-y-auto px-4 py-4 sm:px-6 sm:py-20 md:py-32 lg:px-8 lg:py-[15vh]">
           <div className="mx-auto transform-gpu overflow-hidden rounded-lg bg-gray-50 shadow-xl ring-1 ring-gray-900/7.5 sm:max-w-xl dark:bg-gray-900 dark:ring-gray-800 p-6 text-center">
             <p className="text-red-600 dark:text-red-400">
               Something went wrong. Please try again.
             </p>
-            <Button 
-              variant="default" 
+            <Button
+              variant="default"
               className="mt-4"
               onClick={() => {
                 setHasError(false);
@@ -438,11 +460,13 @@ function SearchDialog({
   }
 
   return (
-    <div className={clss(
-      open ? "block" : "hidden", 
-      "fixed inset-0 z-50", 
-      className
-    )}>
+    <div
+      className={clss(
+        open ? "block" : "hidden",
+        "fixed inset-0 z-50",
+        className
+      )}
+    >
       <button
         className="fixed inset-0 z-40 size-full backdrop-blur-sm bg-gray-400/25 dark:bg-gray-950/40"
         onClick={handleClose}
@@ -451,10 +475,7 @@ function SearchDialog({
 
       <div className="fixed inset-y-0 inset-x-1/2 -translate-x-1/2 z-50 w-[calc(100%-5%)] h-max overflow-y-auto px-4 py-4 sm:px-6 sm:py-20 md:py-32 md:w-[calc(100%-45%)] lg:px-8 lg:py-[15vh]">
         <div className="mx-auto w-full transform-gpu overflow-hidden rounded-lg bg-gray-50 shadow-xl ring-1 ring-gray-900/7.5 dark:bg-gray-900 dark:ring-gray-800">
-          <form 
-            ref={formRef} 
-            onSubmit={(event) => event.preventDefault()}
-          >
+          <form ref={formRef} onSubmit={(event) => event.preventDefault()}>
             <SearchInput
               ref={inputRef}
               searchState={searchState}
