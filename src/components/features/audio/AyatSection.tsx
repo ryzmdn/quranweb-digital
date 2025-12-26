@@ -1,14 +1,13 @@
 import { useState } from "react";
-import axios from "axios";
-import { Button } from "@/components/optimizing/Button";
-import { Svg } from "@/components/optimizing/Svg";
-import { LoadingState } from "@/components/animation/Loading";
-import { ErrorState } from "@/components/animation/Error";
-import { Modal } from "@/components/Modal";
-import type { Ayat, Surah, Tafsir } from "@/assets/types/surah";
-import { arabicNumber } from "@/utils/arabicNumber";
+import { Button } from "@/components/ui/Button";
+import { Svg } from "@/components/ui/Svg";
+import { LoadingState, ErrorState } from "@/components/feedback";
+import { TafsirModal } from "@/components/features/surah";
+import { quranAPI } from "@/services";
+import type { Ayat, Surah, Tafsir } from "@/types";
+import { formatArabicNumber } from "@/utils/formatting";
 
-interface AyahCardProps {
+interface AyatSectionProps {
   surah: Surah;
   ayat: Ayat;
   isPlaying: boolean;
@@ -16,13 +15,16 @@ interface AyahCardProps {
   forwardRef?: React.Ref<HTMLDivElement>;
 }
 
-export const AyahCard: React.FC<AyahCardProps> = ({
+/**
+ * Ayat/Verse section component
+ */
+export const AyatSection = ({
   surah,
   ayat,
   isPlaying,
   onPlay,
   forwardRef,
-}) => {
+}: Readonly<AyatSectionProps>) => {
   const [isTafsirOpen, setIsTafsirOpen] = useState(false);
   const [tafsirData, setTafsirData] = useState<Tafsir | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,10 +34,7 @@ export const AyahCard: React.FC<AyahCardProps> = ({
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.get(
-        `https://equran.id/api/v2/tafsir/${ayahNumber}`
-      );
-      const data = response.data.data;
+      const data = await quranAPI.getTafsir(ayahNumber);
       setTafsirData(data);
       setIsTafsirOpen(true);
     } catch (err) {
@@ -56,18 +55,24 @@ export const AyahCard: React.FC<AyahCardProps> = ({
   };
 
   if (isLoading) return <LoadingState />;
-  if (error) return <ErrorState error="gak tawu" />;
+  if (error) return <ErrorState error={error} />;
+
+  const ringColor = isPlaying
+    ? "ring-2 ring-emerald-500 bg-emerald-50 dark:bg-emerald-950"
+    : "";
+  const numberBgColor = isPlaying
+    ? "bg-emerald-200 dark:bg-emerald-800"
+    : "bg-emerald-100 dark:bg-emerald-900";
+  const textColor = isPlaying
+    ? "text-emerald-700 dark:text-emerald-300"
+    : "text-gray-700 dark:text-gray-300";
 
   return (
     <>
       <article
         ref={forwardRef}
         id={`ayah-${ayat.nomorAyat}`}
-        className={`bg-gray-50 dark:bg-gray-950 rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm transition-colors ${
-          isPlaying
-            ? "ring-2 ring-emerald-500 bg-emerald-50 dark:bg-emerald-950"
-            : "hover:bg-gray-50 dark:hover:bg-gray-950"
-        }`}
+        className={`bg-gray-50 dark:bg-gray-950 rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm transition-colors ${ringColor}`}
         aria-labelledby={`ayah-${ayat.nomorAyat}-header`}
       >
         <header
@@ -76,14 +81,10 @@ export const AyahCard: React.FC<AyahCardProps> = ({
         >
           <div className="flex items-center gap-x-3">
             <span
-              className={`${
-                isPlaying
-                  ? "bg-emerald-200 dark:bg-emerald-800"
-                  : "bg-emerald-100 dark:bg-emerald-900"
-              } inline-flex justify-center items-center font-serif size-7 rounded-full font-medium text-emerald-700 dark:text-emerald-300 sm:size-8`}
+              className={`${numberBgColor} inline-flex justify-center items-center font-serif size-7 rounded-full font-medium text-emerald-700 dark:text-emerald-300 sm:size-8`}
               aria-label={`Ayah number ${ayat.nomorAyat}`}
             >
-              {arabicNumber(ayat.nomorAyat)}
+              {formatArabicNumber(ayat.nomorAyat)}
             </span>
             <p className="text-xs text-gray-600 dark:text-gray-400 sm:text-sm">
               Ayat {ayat.nomorAyat}
@@ -123,7 +124,7 @@ export const AyahCard: React.FC<AyahCardProps> = ({
               variant="ghost"
               className="size-8"
               onClick={handleTafsirClick}
-              aria-label="Bookmark ayah"
+              aria-label="Read tafsir"
             >
               <Svg
                 variant="outline"
@@ -140,11 +141,11 @@ export const AyahCard: React.FC<AyahCardProps> = ({
 
         <div className="text-right py-6">
           <p
-            className={`text-4xl/loose font-serif ${
+            className={`text-4xl/loose font-serif font-medium ${
               isPlaying
                 ? "text-emerald-700 dark:text-emerald-300"
                 : "text-gray-800 dark:text-gray-200"
-            } font-arabic`}
+            }`}
             dir="rtl"
             lang="ar"
           >
@@ -153,7 +154,7 @@ export const AyahCard: React.FC<AyahCardProps> = ({
         </div>
 
         <div
-          aria-hidden="true"
+          aria-hidden
           className="h-px w-full bg-gray-200 dark:bg-gray-800 mt-1 mb-6 rounded-full"
         />
 
@@ -167,20 +168,14 @@ export const AyahCard: React.FC<AyahCardProps> = ({
           >
             {ayat.teksLatin}
           </p>
-          <p
-            className={`${
-              isPlaying
-                ? "text-emerald-800 dark:text-emerald-400 font-medium"
-                : "text-gray-700 dark:text-gray-300"
-            } text-base/7 font-serif`}
-          >
+          <p className={`text-base/7 font-serif ${textColor}`}>
             {ayat.teksIndonesia}
           </p>
         </div>
       </article>
 
       {isTafsirOpen && (
-        <Modal
+        <TafsirModal
           isOpen={isTafsirOpen}
           onClose={closeModal}
           surah={surah}
@@ -191,3 +186,5 @@ export const AyahCard: React.FC<AyahCardProps> = ({
     </>
   );
 };
+
+AyatSection.displayName = "AyatSection";

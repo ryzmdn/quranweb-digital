@@ -10,7 +10,7 @@ interface SurahCardProps {
 /**
  * Surah card component for displaying surah info in grid/list
  */
-export const Card = ({ surah }: Readonly<SurahCardProps>) => {
+export const SurahCard = ({ surah }: Readonly<SurahCardProps>) => {
   const { nomor, tempatTurun, nama, namaLatin, arti, jumlahAyat } = surah;
 
   const isMakkah = tempatTurun === "Mekah";
@@ -21,7 +21,7 @@ export const Card = ({ surah }: Readonly<SurahCardProps>) => {
   return (
     <div className="group relative p-6 rounded-2xl shadow-sm hover:-translate-y-1 border border-gray-200/60 hover:border-emerald-500 dark:border-gray-800/60 bg-gray-50/70 dark:bg-gray-950/70">
       <div className="flex items-center justify-between mb-4">
-        <div className="font-serif size-10 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center text-gray-100 text-lg shadow-lg">
+        <div className="font-serif size-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center text-gray-100 text-lg shadow-lg">
           {formatArabicNumber(nomor)}
         </div>
         <div
@@ -35,7 +35,7 @@ export const Card = ({ surah }: Readonly<SurahCardProps>) => {
         <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-1 font-serif">
           {nama}
         </h3>
-        <div className="w-12 group-hover:w-14 h-0.5 bg-linear-to-r from-emerald-400 to-teal-400 my-1.5 mx-auto rounded-full transition-all" />
+        <div className="w-12 group-hover:w-14 h-0.5 bg-gradient-to-r from-emerald-400 to-teal-400 my-1.5 mx-auto rounded-full transition-all" />
       </div>
 
       <div className="text-center mb-4">
@@ -68,4 +68,4 @@ export const Card = ({ surah }: Readonly<SurahCardProps>) => {
   );
 };
 
-Card.displayName = "Card";
+SurahCard.displayName = "SurahCard";

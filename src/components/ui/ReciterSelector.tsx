@@ -1,4 +1,4 @@
-import { Svg } from "@/components/optimizing/Svg";
+import { Svg } from "@/components/ui/Svg";
 
 const RECITERS = {
   "01": "Abdullah Al-Juhany",

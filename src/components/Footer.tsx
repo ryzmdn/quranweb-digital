@@ -12,7 +12,7 @@ export function Footer() {
       <footer className="bg-gray-50 dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800">
         <div className="container mx-auto pt-10 px-4 pb-6">
           <div className="flex items-center justify-center gap-3 mb-4 text-center">
-            <div className="flex justify-center items-center p-1 bg-gradient-to-br from-emerald-600 to-emerald-500 size-10 rounded-full shadow-sm">
+            <div className="flex justify-center items-center p-1 bg-linear-to-br from-emerald-600 to-emerald-500 size-10 rounded-full shadow-sm">
               <Logo />
             </div>
             <h3 className="text-xl text-gray-800 dark:text-gray-200 font-semibold">

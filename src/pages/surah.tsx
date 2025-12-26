@@ -1,33 +1,37 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useParams } from "react-router";
-import axios from "axios";
-import { Pagination } from "@/components/Pagination";
-import { AyahCard } from "@/components/ui/AyatSection";
+import { Pagination } from "@/components/features/surah";
+import { AyatSection } from "@/components/features/audio";
 import { SurahHeader } from "@/components/ui/SurahHeader";
 import { SurahInfo } from "@/components/ui/SurahDetail";
-import { LoadingState } from "@/components/animation/Loading";
-import { ErrorState } from "@/components/animation/Error";
-import type { Ayat, SurahDetail } from "@/assets/types/surah";
-import { useAudio } from "@/context/AudioProvider";
+import { LoadingState, ErrorState } from "@/components/feedback";
+import type { Ayat, SurahDetail as SurahDetailType } from "@/types";
+import { useAudio } from "@/hooks";
+import { quranAPI } from "@/services";
 
+/**
+ * Surah detail page
+ */
 export default function Surah() {
   const { id } = useParams<{ id: string }>();
-  
+
   const {
     playAudio,
     stopAudio,
     isPlaying,
     currentTrack,
     registerAudioEndedCallback,
-    unregisterAudioEndedCallback
+    unregisterAudioEndedCallback,
   } = useAudio();
-  
-  const [surah, setSurah] = useState<SurahDetail | null>(null);
+
+  const [surah, setSurah] = useState<SurahDetailType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedReciter, setSelectedReciter] = useState("01");
-  const [currentPlayingAyah, setCurrentPlayingAyah] = useState<number | null>(null);
-  
+  const [currentPlayingAyah, setCurrentPlayingAyah] = useState<number | null>(
+    null
+  );
+
   const ayatRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
   const availableReciters = useMemo(() => {
@@ -36,15 +40,14 @@ export default function Surah() {
   }, [surah]);
 
   const fetchSurah = useCallback(async () => {
+    if (!id) return;
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`https://equran.id/api/v2/surat/${id}`);
-      const surahData = response.data.data;
-      
-      setSurah(surahData);
-      
-      const reciters = Object.keys(surahData.ayat[0]?.audio || {});
+      const data = await quranAPI.getSurah(parseInt(id));
+      setSurah(data);
+
+      const reciters = Object.keys(data.ayat[0]?.audio || {});
       if (reciters.length > 0 && !reciters.includes(selectedReciter)) {
         setSelectedReciter(reciters[0]);
       }
@@ -77,10 +80,10 @@ export default function Surah() {
       if (currentPlayingAyah && surah) {
         const nextAyah = currentPlayingAyah + 1;
         if (nextAyah <= surah.ayat.length) {
-          const nextAyahData = surah.ayat.find(a => a.nomorAyat === nextAyah);
+          const nextAyahData = surah.ayat.find((a) => a.nomorAyat === nextAyah);
           if (nextAyahData?.audio[selectedReciter]) {
             playAudio(
-              nextAyahData.audio[selectedReciter], 
+              nextAyahData.audio[selectedReciter],
               `ayah-${surah.nomor}-${nextAyah}`
             );
             setCurrentPlayingAyah(nextAyah);
@@ -92,39 +95,59 @@ export default function Surah() {
     };
 
     registerAudioEndedCallback(handleAudioEnded);
-    
+
     return () => {
       unregisterAudioEndedCallback();
     };
-  }, [currentPlayingAyah, surah, selectedReciter, playAudio, registerAudioEndedCallback, unregisterAudioEndedCallback]);
+  }, [
+    currentPlayingAyah,
+    surah,
+    selectedReciter,
+    playAudio,
+    registerAudioEndedCallback,
+    unregisterAudioEndedCallback,
+  ]);
 
   const handlePlayFullSurah = useCallback(() => {
     if (!surah?.audioFull[selectedReciter]) return;
-    
+
     const audioUrl = surah.audioFull[selectedReciter];
     playAudio(audioUrl, `full-${surah.nomor}`);
     setCurrentPlayingAyah(null);
   }, [surah, selectedReciter, playAudio]);
 
-  const handlePlayAyah = useCallback((ayat: Ayat) => {
-    if (isPlaying && currentPlayingAyah === ayat.nomorAyat) {
-      stopAudio();
-      return;
-    }
+  const handlePlayAyah = useCallback(
+    (ayat: Ayat) => {
+      if (isPlaying && currentPlayingAyah === ayat.nomorAyat) {
+        stopAudio();
+        return;
+      }
 
-    const audioUrl = ayat.audio[selectedReciter];
-    if (audioUrl) {
-      playAudio(audioUrl, `ayah-${surah?.nomor}-${ayat.nomorAyat}`);
-      setCurrentPlayingAyah(ayat.nomorAyat);
-    }
-  }, [isPlaying, currentPlayingAyah, selectedReciter, surah?.nomor, playAudio, stopAudio]);
+      const audioUrl = ayat.audio[selectedReciter];
+      if (audioUrl) {
+        playAudio(audioUrl, `ayah-${surah?.nomor}-${ayat.nomorAyat}`);
+        setCurrentPlayingAyah(ayat.nomorAyat);
+      }
+    },
+    [
+      isPlaying,
+      currentPlayingAyah,
+      selectedReciter,
+      surah?.nomor,
+      playAudio,
+      stopAudio,
+    ]
+  );
 
-  const handleReciterChange = useCallback((reciterId: string) => {
-    setSelectedReciter(reciterId);
-    if (isPlaying) {
-      stopAudio();
-    }
-  }, [isPlaying, stopAudio]);
+  const handleReciterChange = useCallback(
+    (reciterId: string) => {
+      setSelectedReciter(reciterId);
+      if (isPlaying) {
+        stopAudio();
+      }
+    },
+    [isPlaying, stopAudio]
+  );
 
   if (loading) return <LoadingState />;
   if (error) return <ErrorState error={error} />;
@@ -146,10 +169,11 @@ export default function Surah() {
 
       <div className="flex flex-col gap-y-6 w-full">
         {surah.ayat.map((ayat) => {
-          const isCurrentAyahPlaying = isPlaying && currentPlayingAyah === ayat.nomorAyat;
-          
+          const isCurrentAyahPlaying =
+            isPlaying && currentPlayingAyah === ayat.nomorAyat;
+
           return (
-            <AyahCard
+            <AyatSection
               key={ayat.nomorAyat}
               surah={surah}
               ayat={ayat}

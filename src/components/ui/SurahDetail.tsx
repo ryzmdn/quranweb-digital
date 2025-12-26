@@ -1,7 +1,7 @@
-import { Button } from "@/components/optimizing/Button";
-import { Svg } from "@/components/optimizing/Svg";
+import { Button } from "@/components/ui/Button";
+import { Svg } from "@/components/ui/Svg";
 import { ReciterSelector } from "@/components/ui/ReciterSelector";
-import type { SurahDetail } from "@/assets/types/surah";
+import type { SurahDetail } from "@/types/surah";
 
 interface SurahInfoProps {
   surah: SurahDetail;
