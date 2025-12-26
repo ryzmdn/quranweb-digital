@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:seo": "npm run build && npm run generate-sitemap",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate-sitemap": "ts-node scripts/generate-sitemap.ts"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
