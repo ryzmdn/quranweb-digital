@@ -1,15 +1,16 @@
-import { Outlet } from "react-router";
-import { Header, Footer } from "@/components/common";
+import { Route, Routes } from "react-router";
+import Home from "./pages/home";
+import Surah from "./pages/surah";
+import { MainLayout } from "./layouts/MainLayout";
 
 export default function App() {
   return (
-    <>
-      <Header />
-      <main className="w-full max-w-6xl mx-auto px-4 sm:p-6">
-        <Outlet />
-      </main>
-      <Footer />
-    </>
+    <Routes>
+      <Route path="/" element={<MainLayout />}>
+        <Route index element={<Home />} />
+        <Route path="/surat/:id" element={<Surah />} />
+      </Route>
+    </Routes>
   );
 }
 
