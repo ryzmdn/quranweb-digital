@@ -1,9 +1,6 @@
 import { Outlet } from "react-router";
 import { Header, Footer } from "@/components/common";
 
-/**
- * Root layout component
- */
 export default function App() {
   return (
     <>

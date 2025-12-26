@@ -1,18 +1,3 @@
-/**
- * SEO Meta Tags Configuration
- * Centralized configuration untuk meta tags yang dapat digunakan di seluruh aplikasi
- *
- * Usage:
- * import { SEO_CONFIG, updateMetaTags } from '@/utils/seo-config';
- *
- * useEffect(() => {
- *   updateMetaTags({
- *     title: 'Surat Al-Fatihah',
- *     description: 'Baca Surat Al-Fatihah...'
- *   });
- * }, []);
- */
-
 export interface MetaTagsOptions {
   title?: string;
   description?: string;
@@ -53,10 +38,6 @@ export const SEO_CONFIG = {
   },
 };
 
-/**
- * Update meta tags secara dinamis
- * @param options - Opsi meta tags yang ingin diupdate
- */
 export function updateMetaTags(options: MetaTagsOptions): void {
   const {
     title,
@@ -67,46 +48,37 @@ export function updateMetaTags(options: MetaTagsOptions): void {
     type = "website",
   } = options;
 
-  // Update title
   if (title) {
     document.title = title;
     updateOrCreateMetaTag("og:title", title);
     updateOrCreateMetaTag("twitter:title", title);
   }
 
-  // Update description
   if (description) {
     updateOrCreateMetaTag("description", description);
     updateOrCreateMetaTag("og:description", description);
     updateOrCreateMetaTag("twitter:description", description);
   }
 
-  // Update keywords
   if (keywords && keywords.length > 0) {
     updateOrCreateMetaTag("keywords", keywords.join(", "));
   }
 
-  // Update image
   if (image) {
     updateOrCreateMetaTag("og:image", image);
     updateOrCreateMetaTag("twitter:image", image);
   }
 
-  // Update URL
   if (url) {
     updateOrCreateMetaTag("og:url", url);
     updateOrCanonical("canonical", url);
   }
 
-  // Update type
   if (type) {
     updateOrCreateMetaTag("og:type", type);
   }
 }
 
-/**
- * Helper function untuk update atau create meta tag
- */
 function updateOrCreateMetaTag(name: string, content: string): void {
   let meta = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement;
 
@@ -132,9 +104,6 @@ function updateOrCreateMetaTag(name: string, content: string): void {
   meta.content = content;
 }
 
-/**
- * Helper function untuk update canonical link
- */
 function updateOrCanonical(rel: string, href: string): void {
   let link = document.querySelector(`link[rel="${rel}"]`) as HTMLLinkElement;
 
@@ -147,9 +116,6 @@ function updateOrCanonical(rel: string, href: string): void {
   link.href = href;
 }
 
-/**
- * Buat meta tags untuk halaman Surah
- */
 export function createSurahMetaTags(
   surahNumber: number,
   surahName: string,
@@ -178,9 +144,6 @@ export function createSurahMetaTags(
   };
 }
 
-/**
- * Reset meta tags ke nilai default
- */
 export function resetMetaTags(): void {
   updateMetaTags({
     title: `${SEO_CONFIG.site.name} - ${SEO_CONFIG.pages.home.title}`,
@@ -191,9 +154,6 @@ export function resetMetaTags(): void {
   });
 }
 
-/**
- * Generate structured data untuk halaman Surah
- */
 export function generateSurahStructuredData(
   surahNumber: number,
   _surahName: string,
@@ -226,20 +186,12 @@ export function generateSurahStructuredData(
       "@type": "CreativeWork",
       name: `Surat ${surahNameLatin}`,
       author: "Allah",
-      dateCreated: "610-632", // Era Al-Qur'an
+      dateCreated: "610-632",
       description: `Surat ke-${surahNumber} dalam Al-Qur'an dengan ${ayatCount} ayat. Diturunkan di ${tempatTurun}.`,
     },
   };
 }
 
-/**
- * Hook untuk mengupdate meta tags
- *
- * Usage dalam React component:
- * useEffect(() => {
- *   useSEOMeta(createSurahMetaTags(...));
- * }, [surahData]);
- */
 export function useSEOMeta(options: MetaTagsOptions) {
   return updateMetaTags(options);
 }

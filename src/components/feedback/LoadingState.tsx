@@ -1,6 +1,3 @@
-/**
- * Loading state component
- */
 export const LoadingState = () => (
   <div className="flex justify-center items-center min-h-screen bg-transparent">
     <div className="text-center">

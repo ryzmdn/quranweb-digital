@@ -1,9 +1,6 @@
 import { useLocation } from "react-router";
 import { Logo } from "@/components/common/Logo";
 
-/**
- * Footer component shown on home page
- */
 export const Footer = () => {
   const location = useLocation();
   const year = new Date().getFullYear();

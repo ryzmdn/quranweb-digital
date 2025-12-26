@@ -1,5 +1,3 @@
-// Types untuk Al-Quran API
-
 export interface Surah {
   nomor: number;
   nama: string;

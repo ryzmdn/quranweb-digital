@@ -12,9 +12,6 @@ interface TafsirModalProps {
   className?: string;
 }
 
-/**
- * Hook to disable scrolling when modal is open
- */
 function useDisableScroll(active: boolean) {
   useEffect(() => {
     if (!active) return;
@@ -27,9 +24,6 @@ function useDisableScroll(active: boolean) {
   }, [active]);
 }
 
-/**
- * Hook to trap focus within modal
- */
 function useFocusTrap(
   active: boolean,
   containerRef: React.RefObject<HTMLElement | null>
@@ -63,9 +57,6 @@ function useFocusTrap(
   }, [active, containerRef]);
 }
 
-/**
- * Tafsir Modal component
- */
 export const TafsirModal = ({
   isOpen,
   onClose,

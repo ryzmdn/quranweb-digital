@@ -14,9 +14,6 @@ class QuranAPI {
     });
   }
 
-  /**
-   * Fetch all surahs
-   */
   async getAllSurahs(): Promise<Surah[]> {
     try {
       const response = await this.client.get("/surat");
@@ -27,9 +24,6 @@ class QuranAPI {
     }
   }
 
-  /**
-   * Fetch a specific surah with its ayats
-   */
   async getSurah(surahNumber: number): Promise<SurahDetail> {
     try {
       const response = await this.client.get(`/surat/${surahNumber}`);
@@ -40,9 +34,6 @@ class QuranAPI {
     }
   }
 
-  /**
-   * Search surahs by query
-   */
   async searchSurahs(query: string): Promise<Surah[]> {
     try {
       const response = await this.client.get("/surat");
@@ -61,9 +52,6 @@ class QuranAPI {
     }
   }
 
-  /**
-   * Fetch tafsir for a specific ayat
-   */
   async getTafsir(ayahNumber: number): Promise<Tafsir> {
     try {
       const response = await this.client.get(`/tafsir/${ayahNumber}`);
@@ -75,5 +63,4 @@ class QuranAPI {
   }
 }
 
-// Export singleton instance
 export const quranAPI = new QuranAPI();

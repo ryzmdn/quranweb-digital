@@ -1,6 +1,3 @@
-/**
- * Logo component for Al-Quran Digital
- */
 export const Logo = () => (
   <svg
     width="32"

@@ -5,9 +5,6 @@ import { SurahCard } from "@/components/features/surah";
 import { LoadingState, EmptyState } from "@/components/feedback";
 import { quranAPI } from "@/services";
 
-/**
- * Home page - displays list of all surahs
- */
 export default function Home() {
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const [loading, setLoading] = useState(true);

@@ -1,6 +1,3 @@
-/**
- * Empty state component
- */
 interface EmptyStateProps {
   title?: string;
   description?: string;

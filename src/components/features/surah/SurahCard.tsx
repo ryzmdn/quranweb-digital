@@ -7,9 +7,6 @@ interface SurahCardProps {
   surah: Surah;
 }
 
-/**
- * Surah card component for displaying surah info in grid/list
- */
 export const SurahCard = ({ surah }: Readonly<SurahCardProps>) => {
   const { nomor, tempatTurun, nama, namaLatin, arti, jumlahAyat } = surah;
 

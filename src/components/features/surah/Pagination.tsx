@@ -6,9 +6,6 @@ interface SurahNavigationProps {
   currentId: string | undefined;
 }
 
-/**
- * Pagination component for surah navigation
- */
 export const Pagination = ({
   content,
   currentId,

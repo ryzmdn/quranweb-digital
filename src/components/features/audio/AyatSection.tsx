@@ -15,9 +15,6 @@ interface AyatSectionProps {
   forwardRef?: React.Ref<HTMLDivElement>;
 }
 
-/**
- * Ayat/Verse section component
- */
 export const AyatSection = ({
   surah,
   ayat,

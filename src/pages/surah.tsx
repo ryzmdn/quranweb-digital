@@ -9,9 +9,6 @@ import type { Ayat, SurahDetail as SurahDetailType } from "@/types";
 import { useAudio } from "@/hooks";
 import { quranAPI } from "@/services";
 
-/**
- * Surah detail page
- */
 export default function Surah() {
   const { id } = useParams<{ id: string }>();
 

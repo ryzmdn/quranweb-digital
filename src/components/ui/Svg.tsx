@@ -13,10 +13,6 @@ export interface SvgProps {
   className?: string;
   children?: ReactNode;
 }
-
-/**
- * SVG component with support for different icon variants
- */
 export const Svg = ({
   variant = "solid",
   draw = [],

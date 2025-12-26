@@ -1,5 +1,3 @@
-// Types untuk Audio
-
 export interface AudioPlaybackState {
   isPlaying: boolean;
   currentTrack: string;

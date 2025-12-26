@@ -1,8 +1,3 @@
-/**
- * Sitemap Generator untuk Al-Qur'an Digital
- * Jalankan: npx ts-node scripts/generate-sitemap.ts
- */
-
 import fs from "fs";
 import path from "path";
 
@@ -20,14 +15,13 @@ interface SitemapUrl {
   priority: number;
 }
 
-const SURAHS = 114; // Total surah dalam Al-Qur'an
+const SURAHS = 114;
 const BASE_URL = "https://quranweb-digital.vercel.app";
 
 function generateSitemap(): void {
   const urls: SitemapUrl[] = [];
   const today = new Date().toISOString().split("T")[0];
 
-  // Halaman utama
   urls.push({
     loc: `${BASE_URL}/`,
     lastmod: today,
@@ -35,7 +29,6 @@ function generateSitemap(): void {
     priority: 1.0,
   });
 
-  // Halaman untuk setiap surah
   for (let i = 1; i <= SURAHS; i++) {
     urls.push({
       loc: `${BASE_URL}/surah/${i}`,
@@ -45,7 +38,6 @@ function generateSitemap(): void {
     });
   }
 
-  // Halaman about/info
   urls.push({
     loc: `${BASE_URL}/about`,
     lastmod: today,
@@ -53,15 +45,13 @@ function generateSitemap(): void {
     priority: 0.5,
   });
 
-  // Generate XML
   const xml = generateSitemapXml(urls);
 
-  // Simpan ke file
   const outputPath = path.join(__dirname, "../public/sitemap.xml");
   fs.writeFileSync(outputPath, xml);
 
-  console.log(`✅ Sitemap generated: ${outputPath}`);
-  console.log(`📊 Total URLs: ${urls.length}`);
+  console.log(`Sitemap generated: ${outputPath}`);
+  console.log(`Total URLs: ${urls.length}`);
 }
 
 function generateSitemapXml(urls: SitemapUrl[]): string {
@@ -92,5 +82,4 @@ function escapeXml(text: string): string {
     .replace(/'/g, "&apos;");
 }
 
-// Run generator
 generateSitemap();

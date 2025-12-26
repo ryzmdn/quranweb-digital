@@ -5,9 +5,6 @@ interface ErrorStateProps {
   onRetry?: () => void;
 }
 
-/**
- * Error state component
- */
 export const ErrorState = ({ error, onRetry }: Readonly<ErrorStateProps>) => (
   <div className="flex justify-center items-center min-h-screen">
     <div className="text-center">

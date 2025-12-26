@@ -30,9 +30,6 @@ interface SearchState {
   status: SearchStatus;
 }
 
-/**
- * Hook for surah search functionality
- */
 function useSurahSearch({ close }: { close: () => void }) {
   const navigate = useNavigate();
   const [searchState, setSearchState] = useState<SearchState>({
@@ -140,9 +137,6 @@ function useSurahSearch({ close }: { close: () => void }) {
   };
 }
 
-/**
- * Component to highlight search query in results
- */
 function HighlightQuery({ text, query }: { text: string; query: string }) {
   if (!query) return <>{text}</>;
 
@@ -164,9 +158,6 @@ function HighlightQuery({ text, query }: { text: string; query: string }) {
   );
 }
 
-/**
- * Individual search result item
- */
 const SearchResultItem = memo(function SearchResultItem({
   surah,
   query,
@@ -197,9 +188,6 @@ const SearchResultItem = memo(function SearchResultItem({
   );
 });
 
-/**
- * Search results display component
- */
 function SearchResults({
   searchState,
   onSelect,
@@ -260,9 +248,6 @@ function SearchResults({
   );
 }
 
-/**
- * Search input component
- */
 const SearchInput = forwardRef<
   HTMLInputElement,
   {
@@ -324,9 +309,6 @@ const SearchInput = forwardRef<
   );
 });
 
-/**
- * Search dialog component
- */
 function SearchDialog({
   open,
   setOpen,
@@ -409,9 +391,6 @@ function SearchDialog({
   );
 }
 
-/**
- * Main Search component
- */
 export const Search = () => {
   const [modifierKey] = useState(() =>
     /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent) ? "⌘" : "Ctrl"
