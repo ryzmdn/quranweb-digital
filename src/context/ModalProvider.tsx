@@ -1,18 +1,5 @@
-import {
-  createContext,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
-
-interface ModalContextType {
-  isOpen: boolean;
-  openModal: () => void;
-  closeModal: () => void;
-}
-
-const ModalContext = createContext<ModalContextType | undefined>(undefined);
+import { useState, useMemo, type ReactNode } from "react";
+import { ModalContext, type ModalContextType } from "@/context/ModalContext";
 
 export function ModalProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -20,18 +7,12 @@ export function ModalProvider({ children }: Readonly<{ children: ReactNode }>) {
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
 
-  const value = useMemo(() => ({ isOpen, openModal, closeModal }), [isOpen]);
-  return (
-    <ModalContext.Provider value={value}>
-      {children}
-    </ModalContext.Provider>
+  const value = useMemo<ModalContextType>(
+    () => ({ isOpen, openModal, closeModal }),
+    [isOpen]
   );
-}
 
-export function useModal() {
-  const context = useContext(ModalContext);
-  if (context === undefined) {
-    throw new Error("useModal must be used within a ModalProvider");
-  }
-  return context;
+  return (
+    <ModalContext.Provider value={value}>{children}</ModalContext.Provider>
+  );
 }

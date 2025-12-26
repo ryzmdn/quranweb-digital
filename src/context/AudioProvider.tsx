@@ -1,48 +1,33 @@
 import {
-  createContext,
-  useContext,
   useState,
   useEffect,
   useCallback,
-  type ReactNode,
   useMemo,
   useRef,
+  type ReactNode,
 } from "react";
-
-type AudioContextType = {
-  playAudio: (url: string, trackId: string) => void;
-  stopAudio: () => void;
-  isPlaying: boolean;
-  currentTrack: string;
-  registerAudioEndedCallback: (callback: () => void) => void;
-  unregisterAudioEndedCallback: () => void;
-};
-
-const AudioContext = createContext<AudioContextType | undefined>(undefined);
+import { AudioContext, type AudioContextType } from "@/context/AudioContext";
 
 export function AudioProvider({ children }: Readonly<{ children: ReactNode }>) {
-  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(
-    null
-  );
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTrack, setCurrentTrack] = useState<string>("");
   const audioEndedCallbackRef = useRef<(() => void) | null>(null);
 
   const stopAudio = useCallback(() => {
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
     }
     setIsPlaying(false);
     setCurrentTrack("");
-    setCurrentAudio(null);
-  }, [currentAudio]);
+  }, []);
 
   const playAudio = useCallback(
     (url: string, trackId: string) => {
-      if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
       }
 
       if (currentTrack === trackId && isPlaying) {
@@ -51,8 +36,8 @@ export function AudioProvider({ children }: Readonly<{ children: ReactNode }>) {
       }
 
       const audio = new Audio(url);
+      audioRef.current = audio;
       audio.play();
-      setCurrentAudio(audio);
       setIsPlaying(true);
       setCurrentTrack(trackId);
 
@@ -64,7 +49,7 @@ export function AudioProvider({ children }: Readonly<{ children: ReactNode }>) {
         }
       };
     },
-    [currentAudio, currentTrack, isPlaying, stopAudio]
+    [currentTrack, isPlaying, stopAudio]
   );
 
   const registerAudioEndedCallback = useCallback((callback: () => void) => {
@@ -77,14 +62,14 @@ export function AudioProvider({ children }: Readonly<{ children: ReactNode }>) {
 
   useEffect(() => {
     return () => {
-      if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
       }
     };
-  }, [currentAudio]);
+  }, []);
 
-  const value = useMemo(
+  const value = useMemo<AudioContextType>(
     () => ({
       playAudio,
       stopAudio,
@@ -106,12 +91,4 @@ export function AudioProvider({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <AudioContext.Provider value={value}>{children}</AudioContext.Provider>
   );
-}
-
-export function useAudio() {
-  const context = useContext(AudioContext);
-  if (!context) {
-    throw new Error("useAudio must be used within an AudioProvider");
-  }
-  return context;
 }
