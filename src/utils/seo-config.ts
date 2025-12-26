@@ -196,7 +196,7 @@ export function resetMetaTags(): void {
  */
 export function generateSurahStructuredData(
   surahNumber: number,
-  surahName: string,
+  _surahName: string,
   surahNameLatin: string,
   surahDescription: string,
   ayatCount: number,
